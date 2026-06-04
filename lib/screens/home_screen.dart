@@ -10,7 +10,6 @@ import '../services/custom_item_store.dart';
 import '../services/feedback_service.dart';
 import '../services/food_recognition_service.dart';
 import '../services/selected_item_store.dart';
-import '../widgets/hotpot_item_widget.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -103,6 +102,21 @@ class _HomeScreenState extends State<HomeScreen> {
     _selectedItemStore.saveItems(_selectedItems.values.toList());
   }
 
+  void _eat() {
+    if (_selectedItems.isEmpty) return;
+    setState(() {
+      final now = DateTime.now();
+      for (final entry in _selectedItems.entries) {
+        final selected = entry.value;
+        _selectedItems[entry.key] = selected.startedAt == null
+            ? selected.copyWith(startedAt: now)
+            : selected;
+      }
+      _selectedCategory = '已点';
+    });
+    _persistSelectedItems();
+  }
+
   void _toggleItem(HotpotItem item) {
     setState(() {
       if (_selectedItems.containsKey(item.id)) {
@@ -122,9 +136,6 @@ class _HomeScreenState extends State<HomeScreen> {
           item: item,
           quantity: (selected?.quantity ?? 0) + 1,
         );
-      }
-      if (_selectedItems.isNotEmpty) {
-        _selectedCategory = '已点';
       }
     });
     _persistSelectedItems();
@@ -292,7 +303,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-    ).whenComplete(controller.dispose);
+    );
   }
 
   Future<void> _showMissingItemsDialog(List<String> missingNames) async {
@@ -368,10 +379,10 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             FilledButton.icon(
               onPressed: () async {
-                final item = await _askCustomItem('');
-                if (item == null) return;
-                await _saveCustomItem(item);
-                setDialogState(() {});
+                Navigator.pop(context);
+                await Future<void>.delayed(Duration.zero);
+                if (!mounted) return;
+                await _addCustomItemManually();
               },
               icon: const Icon(Icons.add),
               label: const Text('新增'),
@@ -440,10 +451,14 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-    ).whenComplete(() {
-      nameController.dispose();
-      secondsController.dispose();
-    });
+    );
+  }
+
+  Future<void> _addCustomItemManually() async {
+    final item = await _askCustomItem('');
+    if (item == null) return;
+    await _saveCustomItem(item);
+    _addItems([item]);
   }
 
   void _showMessage(String message) {
@@ -499,16 +514,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       selectedCount: selectedCount,
                       onPickImage: _pickAndRecognizeImage,
                       onManageCustom: _showCustomItemManager,
+                      onEat: selectedCount == 0 ? null : _eat,
                       onClear: selectedCount == 0 ? null : _clearSelectedItems,
-                    ),
-                  ),
-                  SliverToBoxAdapter(
-                    child: _SelectedTimerSection(
-                      items: _selectedItems.values.toList(),
-                      onRemove: _toggleItem,
-                      onIncrease: _increaseQuantity,
-                      onDecrease: _decreaseQuantity,
-                      onTimerTap: _startOrResetTimer,
                     ),
                   ),
                   SliverToBoxAdapter(
@@ -524,28 +531,37 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ),
-                  SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(12, 0, 12, 28),
-                    sliver: SliverGrid.builder(
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            mainAxisSpacing: 10,
-                            crossAxisSpacing: 10,
-                            childAspectRatio: 2.65,
-                          ),
-                      itemCount: _visibleItems.length,
-                      itemBuilder: (context, index) {
-                        final item = _visibleItems[index];
-                        return _MenuItemTile(
-                          item: item,
-                          selected: _selectedItems.containsKey(item.id),
-                          quantity: _selectedItems[item.id]?.quantity ?? 0,
-                          onTap: () => _toggleItem(item),
-                        );
-                      },
+                  if (_selectedCategory == '已点')
+                    _SelectedTimerSliver(
+                      items: _selectedItems.values.toList(),
+                      onRemove: _toggleItem,
+                      onIncrease: _increaseQuantity,
+                      onDecrease: _decreaseQuantity,
+                      onTimerTap: _startOrResetTimer,
+                    )
+                  else
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(12, 0, 12, 28),
+                      sliver: SliverGrid.builder(
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              mainAxisSpacing: 10,
+                              crossAxisSpacing: 10,
+                              childAspectRatio: 2.65,
+                            ),
+                        itemCount: _visibleItems.length,
+                        itemBuilder: (context, index) {
+                          final item = _visibleItems[index];
+                          return _MenuItemTile(
+                            item: item,
+                            selected: _selectedItems.containsKey(item.id),
+                            quantity: _selectedItems[item.id]?.quantity ?? 0,
+                            onTap: () => _toggleItem(item),
+                          );
+                        },
+                      ),
                     ),
-                  ),
                 ],
               ),
             ),
@@ -621,12 +637,14 @@ class _HeaderBar extends StatelessWidget {
   final int selectedCount;
   final VoidCallback onPickImage;
   final VoidCallback onManageCustom;
+  final VoidCallback? onEat;
   final VoidCallback? onClear;
 
   const _HeaderBar({
     required this.selectedCount,
     required this.onPickImage,
     required this.onManageCustom,
+    required this.onEat,
     required this.onClear,
   });
 
@@ -638,7 +656,7 @@ class _HeaderBar extends StatelessWidget {
         children: [
           Expanded(
             child: Text(
-              '已点 $selectedCount 道',
+              '已选 $selectedCount 道',
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 18,
@@ -658,6 +676,20 @@ class _HeaderBar extends StatelessWidget {
             icon: const Icon(Icons.playlist_add_outlined),
           ),
           const SizedBox(width: 8),
+          FilledButton(
+            onPressed: onEat,
+            style: FilledButton.styleFrom(
+              backgroundColor: const Color(0xFFFFCC00),
+              foregroundColor: Colors.black,
+              minimumSize: const Size(58, 40),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+            ),
+            child: const Text(
+              '开吃',
+              style: TextStyle(fontWeight: FontWeight.w900),
+            ),
+          ),
+          const SizedBox(width: 8),
           IconButton(
             tooltip: '清空已点',
             onPressed: onClear,
@@ -669,14 +701,14 @@ class _HeaderBar extends StatelessWidget {
   }
 }
 
-class _SelectedTimerSection extends StatelessWidget {
+class _SelectedTimerSliver extends StatelessWidget {
   final List<SelectedHotpotItem> items;
   final ValueChanged<HotpotItem> onRemove;
   final ValueChanged<HotpotItem> onIncrease;
   final ValueChanged<HotpotItem> onDecrease;
   final ValueChanged<HotpotItem> onTimerTap;
 
-  const _SelectedTimerSection({
+  const _SelectedTimerSliver({
     required this.items,
     required this.onRemove,
     required this.onIncrease,
@@ -687,111 +719,188 @@ class _SelectedTimerSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (items.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.fromLTRB(14, 8, 14, 10),
-        child: Container(
-          height: 74,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: const Color(0xFF1D1D1D),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Text(
-            '从左侧分类挑菜，或上传照片自动加入倒计时',
-            textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.grey[400], fontSize: 13),
+      return SliverToBoxAdapter(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(14, 8, 14, 10),
+          child: Container(
+            height: 96,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: const Color(0xFF1D1D1D),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              '先从左侧分类选择食材，再点击“开吃”',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey[400], fontSize: 13),
+            ),
           ),
         ),
       );
     }
 
-    return SizedBox(
-      height: 176,
-      child: ListView.separated(
-        padding: const EdgeInsets.fromLTRB(12, 4, 12, 8),
-        scrollDirection: Axis.horizontal,
-        itemBuilder: (context, index) {
-          final selected = items[index];
-          final item = selected.item;
-          return Stack(
-            clipBehavior: Clip.none,
+    return SliverPadding(
+      padding: const EdgeInsets.fromLTRB(12, 0, 12, 28),
+      sliver: SliverList.separated(
+        itemCount: items.length,
+        itemBuilder: (context, index) => _SelectedTimerTile(
+          selected: items[index],
+          onRemove: onRemove,
+          onIncrease: onIncrease,
+          onDecrease: onDecrease,
+          onTimerTap: onTimerTap,
+        ),
+        separatorBuilder: (context, index) => const SizedBox(height: 8),
+      ),
+    );
+  }
+}
+
+class _SelectedTimerTile extends StatelessWidget {
+  final SelectedHotpotItem selected;
+  final ValueChanged<HotpotItem> onRemove;
+  final ValueChanged<HotpotItem> onIncrease;
+  final ValueChanged<HotpotItem> onDecrease;
+  final ValueChanged<HotpotItem> onTimerTap;
+
+  const _SelectedTimerTile({
+    required this.selected,
+    required this.onRemove,
+    required this.onIncrease,
+    required this.onDecrease,
+    required this.onTimerTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final item = selected.item;
+    final state = selected.state;
+    final timerText = switch (state) {
+      HotpotState.idle => '未下锅',
+      HotpotState.counting => '剩余 ${_formatSeconds(selected.remainingSeconds)}',
+      HotpotState.ready => '可吃 · 已到点',
+      HotpotState.overcooked =>
+        '太老了 ${_formatSeconds(selected.overtimeSeconds)}',
+    };
+    final stateColor = switch (state) {
+      HotpotState.idle => Colors.grey[400]!,
+      HotpotState.counting => const Color(0xFFFFCC00),
+      HotpotState.ready => const Color(0xFF4CD964),
+      HotpotState.overcooked => const Color(0xFFFF3B30),
+    };
+
+    return Material(
+      color: const Color(0xFF1E1E1E),
+      borderRadius: BorderRadius.circular(8),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: () => onTimerTap(item),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+          child: Row(
             children: [
-              SizedBox(
-                width: 104,
-                child: HotpotItemWidget(
-                  key: ValueKey(item.id),
-                  item: item,
-                  diameter: 76,
-                  displayState: selected.state,
-                  remainingSeconds: selected.remainingSeconds,
-                  overtimeSeconds: selected.overtimeSeconds,
-                  onTapOverride: () => onTimerTap(item),
-                  onLongPressOverride: () => onTimerTap(item),
-                ),
-              ),
-              if (selected.quantity > 1)
-                Positioned(
-                  left: 4,
-                  top: 0,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFCC00),
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                    child: Text(
-                      'x${selected.quantity}',
-                      style: const TextStyle(
-                        color: Colors.black,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                  ),
-                ),
-              Positioned(
-                right: 2,
-                top: -4,
-                child: IconButton.filled(
-                  visualDensity: VisualDensity.compact,
-                  iconSize: 14,
-                  constraints: const BoxConstraints.tightFor(
-                    width: 26,
-                    height: 26,
-                  ),
-                  onPressed: () => onRemove(item),
-                  icon: const Icon(Icons.close),
-                ),
-              ),
-              Positioned(
-                left: 8,
-                right: 8,
-                bottom: 8,
-                child: Row(
+              _MenuAvatar(item: item, size: 48),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _QuantityButton(
-                      icon: Icons.remove,
-                      onPressed: () => onDecrease(item),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            item.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                        ),
+                        if (selected.quantity > 1)
+                          Text(
+                            'x${selected.quantity}',
+                            style: const TextStyle(
+                              color: Color(0xFFFFCC00),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                      ],
                     ),
-                    const SizedBox(width: 8),
-                    _QuantityButton(
-                      icon: Icons.add,
-                      onPressed: () => onIncrease(item),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${item.category} · 推荐 ${_formatSeconds(item.targetSeconds)}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(color: Colors.grey[500], fontSize: 11),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      timerText,
+                      style: TextStyle(
+                        color: stateColor,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
                   ],
                 ),
               ),
+              const SizedBox(width: 6),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _QuantityButton(
+                        icon: Icons.remove,
+                        onPressed: () => onDecrease(item),
+                      ),
+                      const SizedBox(width: 5),
+                      _QuantityButton(
+                        icon: Icons.add,
+                        onPressed: () => onIncrease(item),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 5),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _QuantityButton(
+                        icon: state == HotpotState.idle
+                            ? Icons.play_arrow
+                            : Icons.refresh,
+                        onPressed: () => onTimerTap(item),
+                      ),
+                      const SizedBox(width: 5),
+                      _QuantityButton(
+                        icon: Icons.close,
+                        onPressed: () => onRemove(item),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ],
-          );
-        },
-        separatorBuilder: (context, index) => const SizedBox(width: 8),
-        itemCount: items.length,
+          ),
+        ),
       ),
     );
+  }
+
+  String _formatSeconds(int seconds) {
+    final minutes = seconds ~/ 60;
+    final rest = seconds % 60;
+    if (minutes > 0) {
+      return '$minutes:${rest.toString().padLeft(2, '0')}';
+    }
+    return '${seconds}s';
   }
 }
 
@@ -904,15 +1013,16 @@ class _MenuItemTile extends StatelessWidget {
 
 class _MenuAvatar extends StatelessWidget {
   final HotpotItem item;
+  final double size;
 
-  const _MenuAvatar({required this.item});
+  const _MenuAvatar({required this.item, this.size = 42});
 
   @override
   Widget build(BuildContext context) {
     return ClipOval(
       child: Container(
-        width: 42,
-        height: 42,
+        width: size,
+        height: size,
         color: const Color(0xFF2A2A2A),
         alignment: Alignment.center,
         child: item.imagePath == null
@@ -923,7 +1033,7 @@ class _MenuAvatar extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: item.emoji.isEmpty ? 10 : 22,
+                  fontSize: item.emoji.isEmpty ? size * 0.24 : size * 0.52,
                   fontWeight: item.emoji.isEmpty
                       ? FontWeight.w800
                       : FontWeight.normal,
@@ -931,8 +1041,8 @@ class _MenuAvatar extends StatelessWidget {
               )
             : Image.asset(
                 item.imagePath!,
-                width: 42,
-                height: 42,
+                width: size,
+                height: size,
                 fit: BoxFit.cover,
               ),
       ),

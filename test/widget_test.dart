@@ -24,13 +24,16 @@ void main() {
     await tester.tap(find.text('脆爽毛肚').last);
     await tester.pumpAndSettle();
 
-    expect(find.text('已点 1 道'), findsOneWidget);
+    expect(find.text('已选 1 道'), findsOneWidget);
     expect(find.text('x2'), findsNothing);
+
+    await tester.tap(find.text('开吃'));
+    await tester.pumpAndSettle();
 
     await tester.tap(find.byIcon(Icons.add).first);
     await tester.pumpAndSettle();
 
-    expect(find.text('已点 1 道'), findsOneWidget);
+    expect(find.text('已选 1 道'), findsOneWidget);
     expect(find.text('x2'), findsWidgets);
   });
 }
