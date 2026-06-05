@@ -44,7 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List<HotpotItem> get _visibleItems {
     if (_selectedCategory == '全部') return _catalog;
     if (_selectedCategory == '已点') {
-      return _selectedItems.values.map((selected) => selected.item).toList();
+      return _sortedSelectedItems.map((selected) => selected.item).toList();
     }
     if (_selectedCategory == '推荐') {
       return defaultItems.take(10).toList();
@@ -52,6 +52,34 @@ class _HomeScreenState extends State<HomeScreen> {
     return _catalog
         .where((item) => item.category == _selectedCategory)
         .toList();
+  }
+
+  List<SelectedHotpotItem> get _sortedSelectedItems {
+    final items = _selectedItems.values.toList();
+    items.sort(_compareSelectedItems);
+    return items;
+  }
+
+  int _compareSelectedItems(SelectedHotpotItem a, SelectedHotpotItem b) {
+    final aRank = _selectedSortRank(a);
+    final bRank = _selectedSortRank(b);
+    final rankCompare = aRank.compareTo(bRank);
+    if (rankCompare != 0) return rankCompare;
+    return a.item.targetSeconds.compareTo(b.item.targetSeconds);
+  }
+
+  int _selectedSortRank(SelectedHotpotItem selected) {
+    if (selected.startedAt == null) return selected.item.targetSeconds + 100000;
+    switch (selected.state) {
+      case HotpotState.overcooked:
+        return -100000 - selected.overtimeSeconds;
+      case HotpotState.ready:
+        return -50000 - selected.overtimeSeconds;
+      case HotpotState.counting:
+        return selected.remainingSeconds;
+      case HotpotState.idle:
+        return selected.item.targetSeconds + 100000;
+    }
   }
 
   @override
@@ -499,7 +527,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   if (_selectedCategory == '已点')
                     _SelectedTimerSliver(
-                      items: _selectedItems.values.toList(),
+                      items: _sortedSelectedItems,
                       onRemove: _toggleItem,
                       onTimerTap: _startOrResetTimer,
                     )

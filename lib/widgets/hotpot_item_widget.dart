@@ -192,7 +192,7 @@ class _HotpotItemWidgetState extends State<HotpotItemWidget>
           style: const TextStyle(
             color: Colors.white,
             fontSize: 24,
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w700,
           ),
         );
       case HotpotState.ready:
@@ -205,32 +205,39 @@ class _HotpotItemWidgetState extends State<HotpotItemWidget>
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 20,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ),
         );
       case HotpotState.overcooked:
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              '太老了!',
-              style: TextStyle(
-                color: kRed,
-                fontSize: 18,
-                fontWeight: FontWeight.w900,
+        return SizedBox(
+          width: widget.diameter,
+          height: widget.diameter,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              const Text(
+                '太老了!',
+                style: TextStyle(
+                  color: kRed,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
-            ),
-            Text(
-              '-${_fmt(_displayOvertime)}',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+              Positioned(
+                bottom: widget.diameter * 0.13,
+                child: Text(
+                  '-${_fmt(_displayOvertime)}',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         );
     }
   }
@@ -325,7 +332,7 @@ class _HotpotItemWidgetState extends State<HotpotItemWidget>
                             Container(
                               width: d,
                               height: d,
-                              color: Colors.black.withValues(alpha: 0.45),
+                              color: Colors.black.withValues(alpha: 0.24),
                               alignment: Alignment.center,
                               child: overlay,
                             ),
