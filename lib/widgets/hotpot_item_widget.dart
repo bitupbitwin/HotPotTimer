@@ -201,8 +201,6 @@ class _HotpotItemWidgetState extends State<HotpotItemWidget>
               bottomText: '可吃!',
               topColor: Colors.white,
               bottomColor: Colors.white,
-              topScale: 0.29,
-              topOffsetScale: 0.09,
               bottomOffsetScale: 0.02,
             ),
           ),
@@ -213,8 +211,6 @@ class _HotpotItemWidgetState extends State<HotpotItemWidget>
           bottomText: '太老了!',
           topColor: Colors.white,
           bottomColor: kRed,
-          topScale: 0.29,
-          topOffsetScale: 0.09,
           bottomOffsetScale: 0.02,
         );
     }
@@ -226,7 +222,6 @@ class _HotpotItemWidgetState extends State<HotpotItemWidget>
     String? bottomText,
     Color bottomColor = Colors.white,
     double topScale = 0.3,
-    double topOffsetScale = 0.04,
     double bottomOffsetScale = 0,
   }) {
     final d = widget.diameter;
@@ -237,7 +232,7 @@ class _HotpotItemWidgetState extends State<HotpotItemWidget>
         alignment: Alignment.center,
         children: [
           Positioned(
-            top: d * topOffsetScale,
+            top: d * 0.04,
             left: d * 0.08,
             right: d * 0.08,
             child: Text(
