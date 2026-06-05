@@ -187,59 +187,82 @@ class _HotpotItemWidgetState extends State<HotpotItemWidget>
       case HotpotState.idle:
         return null;
       case HotpotState.counting:
-        return Text(
-          _fmt(_displayRemaining),
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 24,
-            fontWeight: FontWeight.w700,
-          ),
+        return _positionedOverlayText(
+          topText: _fmt(_displayRemaining),
+          topColor: Colors.white,
         );
       case HotpotState.ready:
         return AnimatedBuilder(
           animation: _blink,
           builder: (context, child) => Opacity(
             opacity: 0.4 + 0.6 * _blink.value,
-            child: const Text(
-              '可吃!',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-              ),
+            child: _positionedOverlayText(
+              topText: '可吃!',
+              bottomText: '+${_fmt(_displayOvertime)}',
+              topColor: Colors.white,
+              bottomColor: Colors.white,
             ),
           ),
         );
       case HotpotState.overcooked:
-        return SizedBox(
-          width: widget.diameter,
-          height: widget.diameter,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              const Text(
-                '太老了!',
-                style: TextStyle(
-                  color: kRed,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              Positioned(
-                bottom: widget.diameter * 0.13,
-                child: Text(
-                  '-${_fmt(_displayOvertime)}',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
-          ),
+        return _positionedOverlayText(
+          topText: '太老了!',
+          bottomText: '+${_fmt(_displayOvertime)}',
+          topColor: kRed,
+          bottomColor: Colors.white,
         );
     }
+  }
+
+  Widget _positionedOverlayText({
+    required String topText,
+    required Color topColor,
+    String? bottomText,
+    Color bottomColor = Colors.white,
+  }) {
+    final d = widget.diameter;
+    return SizedBox(
+      width: d,
+      height: d,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Positioned(
+            top: d * 0.17,
+            left: d * 0.08,
+            right: d * 0.08,
+            child: Text(
+              topText,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: topColor,
+                fontSize: d * 0.17,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+          if (bottomText != null)
+            Positioned(
+              bottom: d * 0.17,
+              left: d * 0.08,
+              right: d * 0.08,
+              child: Text(
+                bottomText,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: bottomColor,
+                  fontSize: d * 0.15,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
   }
 
   // ---------- 食材图片 / emoji ----------
