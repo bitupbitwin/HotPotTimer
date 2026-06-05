@@ -10,6 +10,7 @@ import '../services/custom_item_store.dart';
 import '../services/feedback_service.dart';
 import '../services/food_recognition_service.dart';
 import '../services/selected_item_store.dart';
+import '../widgets/hotpot_item_widget.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -102,21 +103,6 @@ class _HomeScreenState extends State<HomeScreen> {
     _selectedItemStore.saveItems(_selectedItems.values.toList());
   }
 
-  void _eat() {
-    if (_selectedItems.isEmpty) return;
-    setState(() {
-      final now = DateTime.now();
-      for (final entry in _selectedItems.entries) {
-        final selected = entry.value;
-        _selectedItems[entry.key] = selected.startedAt == null
-            ? selected.copyWith(startedAt: now)
-            : selected;
-      }
-      _selectedCategory = '已点';
-    });
-    _persistSelectedItems();
-  }
-
   void _toggleItem(HotpotItem item) {
     setState(() {
       if (_selectedItems.containsKey(item.id)) {
@@ -135,25 +121,6 @@ class _HomeScreenState extends State<HomeScreen> {
         _selectedItems[item.id] = SelectedHotpotItem(
           item: item,
           quantity: (selected?.quantity ?? 0) + 1,
-        );
-      }
-    });
-    _persistSelectedItems();
-  }
-
-  void _increaseQuantity(HotpotItem item) {
-    _addItems([item]);
-  }
-
-  void _decreaseQuantity(HotpotItem item) {
-    setState(() {
-      final selected = _selectedItems[item.id];
-      if (selected == null) return;
-      if (selected.quantity <= 1) {
-        _selectedItems.remove(item.id);
-      } else {
-        _selectedItems[item.id] = selected.copyWith(
-          quantity: selected.quantity - 1,
         );
       }
     });
@@ -514,7 +481,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       selectedCount: selectedCount,
                       onPickImage: _pickAndRecognizeImage,
                       onManageCustom: _showCustomItemManager,
-                      onEat: selectedCount == 0 ? null : _eat,
                       onClear: selectedCount == 0 ? null : _clearSelectedItems,
                     ),
                   ),
@@ -535,8 +501,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     _SelectedTimerSliver(
                       items: _selectedItems.values.toList(),
                       onRemove: _toggleItem,
-                      onIncrease: _increaseQuantity,
-                      onDecrease: _decreaseQuantity,
                       onTimerTap: _startOrResetTimer,
                     )
                   else
@@ -637,14 +601,12 @@ class _HeaderBar extends StatelessWidget {
   final int selectedCount;
   final VoidCallback onPickImage;
   final VoidCallback onManageCustom;
-  final VoidCallback? onEat;
   final VoidCallback? onClear;
 
   const _HeaderBar({
     required this.selectedCount,
     required this.onPickImage,
     required this.onManageCustom,
-    required this.onEat,
     required this.onClear,
   });
 
@@ -675,21 +637,6 @@ class _HeaderBar extends StatelessWidget {
             onPressed: onManageCustom,
             icon: const Icon(Icons.playlist_add_outlined),
           ),
-          const SizedBox(width: 8),
-          FilledButton(
-            onPressed: onEat,
-            style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFFFFCC00),
-              foregroundColor: Colors.black,
-              minimumSize: const Size(58, 40),
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-            ),
-            child: const Text(
-              '开吃',
-              style: TextStyle(fontWeight: FontWeight.w900),
-            ),
-          ),
-          const SizedBox(width: 8),
           IconButton(
             tooltip: '清空已点',
             onPressed: onClear,
@@ -704,15 +651,11 @@ class _HeaderBar extends StatelessWidget {
 class _SelectedTimerSliver extends StatelessWidget {
   final List<SelectedHotpotItem> items;
   final ValueChanged<HotpotItem> onRemove;
-  final ValueChanged<HotpotItem> onIncrease;
-  final ValueChanged<HotpotItem> onDecrease;
   final ValueChanged<HotpotItem> onTimerTap;
 
   const _SelectedTimerSliver({
     required this.items,
     required this.onRemove,
-    required this.onIncrease,
-    required this.onDecrease,
     required this.onTimerTap,
   });
 
@@ -730,7 +673,7 @@ class _SelectedTimerSliver extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
-              '先从左侧分类选择食材，再点击“开吃”',
+              '从左侧分类选择食材后，这里会显示已点菜品',
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.grey[400], fontSize: 13),
             ),
@@ -741,186 +684,85 @@ class _SelectedTimerSliver extends StatelessWidget {
 
     return SliverPadding(
       padding: const EdgeInsets.fromLTRB(12, 0, 12, 28),
-      sliver: SliverList.separated(
+      sliver: SliverGrid.builder(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          mainAxisSpacing: 16,
+          crossAxisSpacing: 10,
+          childAspectRatio: 0.72,
+        ),
         itemCount: items.length,
-        itemBuilder: (context, index) => _SelectedTimerTile(
+        itemBuilder: (context, index) => _SelectedTimerCard(
           selected: items[index],
           onRemove: onRemove,
-          onIncrease: onIncrease,
-          onDecrease: onDecrease,
           onTimerTap: onTimerTap,
         ),
-        separatorBuilder: (context, index) => const SizedBox(height: 8),
       ),
     );
   }
 }
 
-class _SelectedTimerTile extends StatelessWidget {
+class _SelectedTimerCard extends StatelessWidget {
   final SelectedHotpotItem selected;
   final ValueChanged<HotpotItem> onRemove;
-  final ValueChanged<HotpotItem> onIncrease;
-  final ValueChanged<HotpotItem> onDecrease;
   final ValueChanged<HotpotItem> onTimerTap;
 
-  const _SelectedTimerTile({
+  const _SelectedTimerCard({
     required this.selected,
     required this.onRemove,
-    required this.onIncrease,
-    required this.onDecrease,
     required this.onTimerTap,
   });
 
   @override
   Widget build(BuildContext context) {
     final item = selected.item;
-    final state = selected.state;
-    final timerText = switch (state) {
-      HotpotState.idle => '未下锅',
-      HotpotState.counting => '剩余 ${_formatSeconds(selected.remainingSeconds)}',
-      HotpotState.ready => '可吃 · 已到点',
-      HotpotState.overcooked =>
-        '太老了 ${_formatSeconds(selected.overtimeSeconds)}',
-    };
-    final stateColor = switch (state) {
-      HotpotState.idle => Colors.grey[400]!,
-      HotpotState.counting => const Color(0xFFFFCC00),
-      HotpotState.ready => const Color(0xFF4CD964),
-      HotpotState.overcooked => const Color(0xFFFF3B30),
-    };
-
-    return Material(
-      color: const Color(0xFF1E1E1E),
-      borderRadius: BorderRadius.circular(8),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(8),
-        onTap: () => onTimerTap(item),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
-          child: Row(
-            children: [
-              _MenuAvatar(item: item, size: 48),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            item.name,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 15,
-                              fontWeight: FontWeight.w900,
-                            ),
-                          ),
-                        ),
-                        if (selected.quantity > 1)
-                          Text(
-                            'x${selected.quantity}',
-                            style: const TextStyle(
-                              color: Color(0xFFFFCC00),
-                              fontSize: 12,
-                              fontWeight: FontWeight.w900,
-                            ),
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '${item.category} · 推荐 ${_formatSeconds(item.targetSeconds)}',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(color: Colors.grey[500], fontSize: 11),
-                    ),
-                    const SizedBox(height: 3),
-                    Text(
-                      timerText,
-                      style: TextStyle(
-                        color: stateColor,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 6),
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _QuantityButton(
-                        icon: Icons.remove,
-                        onPressed: () => onDecrease(item),
-                      ),
-                      const SizedBox(width: 5),
-                      _QuantityButton(
-                        icon: Icons.add,
-                        onPressed: () => onIncrease(item),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 5),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _QuantityButton(
-                        icon: state == HotpotState.idle
-                            ? Icons.play_arrow
-                            : Icons.refresh,
-                        onPressed: () => onTimerTap(item),
-                      ),
-                      const SizedBox(width: 5),
-                      _QuantityButton(
-                        icon: Icons.close,
-                        onPressed: () => onRemove(item),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Center(
+          child: HotpotItemWidget(
+            key: ValueKey(item.id),
+            item: item,
+            diameter: 92,
+            displayState: selected.state,
+            remainingSeconds: selected.remainingSeconds,
+            overtimeSeconds: selected.overtimeSeconds,
+            onTapOverride: () => onTimerTap(item),
+            onLongPressOverride: () => onTimerTap(item),
           ),
         ),
-      ),
-    );
-  }
-
-  String _formatSeconds(int seconds) {
-    final minutes = seconds ~/ 60;
-    final rest = seconds % 60;
-    if (minutes > 0) {
-      return '$minutes:${rest.toString().padLeft(2, '0')}';
-    }
-    return '${seconds}s';
-  }
-}
-
-class _QuantityButton extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback onPressed;
-
-  const _QuantityButton({required this.icon, required this.onPressed});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 28,
-      height: 28,
-      child: IconButton.filledTonal(
-        padding: EdgeInsets.zero,
-        iconSize: 15,
-        onPressed: onPressed,
-        icon: Icon(icon),
-      ),
+        if (selected.quantity > 1)
+          Positioned(
+            left: 2,
+            top: 0,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFCC00),
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: Text(
+                'x${selected.quantity}',
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ),
+          ),
+        Positioned(
+          right: 0,
+          top: 0,
+          child: IconButton.filled(
+            visualDensity: VisualDensity.compact,
+            iconSize: 14,
+            constraints: const BoxConstraints.tightFor(width: 28, height: 28),
+            onPressed: () => onRemove(item),
+            icon: const Icon(Icons.close),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -1013,16 +855,15 @@ class _MenuItemTile extends StatelessWidget {
 
 class _MenuAvatar extends StatelessWidget {
   final HotpotItem item;
-  final double size;
 
-  const _MenuAvatar({required this.item, this.size = 42});
+  const _MenuAvatar({required this.item});
 
   @override
   Widget build(BuildContext context) {
     return ClipOval(
       child: Container(
-        width: size,
-        height: size,
+        width: 42,
+        height: 42,
         color: const Color(0xFF2A2A2A),
         alignment: Alignment.center,
         child: item.imagePath == null
@@ -1033,7 +874,7 @@ class _MenuAvatar extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: item.emoji.isEmpty ? size * 0.24 : size * 0.52,
+                  fontSize: item.emoji.isEmpty ? 10 : 22,
                   fontWeight: item.emoji.isEmpty
                       ? FontWeight.w800
                       : FontWeight.normal,
@@ -1041,8 +882,8 @@ class _MenuAvatar extends StatelessWidget {
               )
             : Image.asset(
                 item.imagePath!,
-                width: size,
-                height: size,
+                width: 42,
+                height: 42,
                 fit: BoxFit.cover,
               ),
       ),

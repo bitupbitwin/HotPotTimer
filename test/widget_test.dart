@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -17,7 +16,7 @@ void main() {
     expect(find.textContaining('推荐'), findsWidgets);
   });
 
-  testWidgets('点击菜品后加入已点并支持数量增加', (WidgetTester tester) async {
+  testWidgets('点击菜品后加入已点并在已点页启动倒计时', (WidgetTester tester) async {
     await tester.pumpWidget(const HotpotApp());
     await tester.pumpAndSettle();
 
@@ -25,15 +24,14 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('已选 1 道'), findsOneWidget);
-    expect(find.text('x2'), findsNothing);
 
-    await tester.tap(find.text('开吃'));
+    await tester.tap(find.textContaining('已点').first);
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byIcon(Icons.add).first);
+    await tester.tap(find.text('脆爽毛肚').last);
     await tester.pumpAndSettle();
 
     expect(find.text('已选 1 道'), findsOneWidget);
-    expect(find.text('x2'), findsWidgets);
+    expect(find.text('15s'), findsWidgets);
   });
 }
