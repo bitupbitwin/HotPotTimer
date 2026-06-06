@@ -120,7 +120,7 @@ class ProfileScreen extends StatelessWidget {
             SizedBox(height: 10),
             _HowToRow('👆 长按圆圈', '重置该食材，重新计时'),
             SizedBox(height: 10),
-            _HowToRow('🥣 调料标签', '查看忌口设置与蘸料方案'),
+            _HowToRow('🥣 蘸料标签', '查看忌口设置与蘸料方案'),
           ],
         ),
         actions: [
@@ -239,7 +239,7 @@ class _PrefsTabooTile extends StatelessWidget {
                   const Text('忌口设置', style: TextStyle(color: Colors.white, fontSize: 14)),
                   const SizedBox(height: 6),
                   tabooItems.isEmpty
-                      ? const Text('暂未设置，点击前往调料页配置',
+                      ? const Text('暂未设置，点击前往蘸料页配置',
                           style: TextStyle(color: Color(0xFF555555), fontSize: 12))
                       : Wrap(
                           spacing: 6,

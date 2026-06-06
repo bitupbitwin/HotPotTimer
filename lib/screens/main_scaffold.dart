@@ -67,7 +67,7 @@ class _MainScaffoldState extends State<MainScaffold> {
           BottomNavigationBarItem(
             icon: Icon(Icons.soup_kitchen_outlined),
             activeIcon: Icon(Icons.soup_kitchen),
-            label: '调料',
+            label: '蘸料',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.outdoor_grill_outlined),

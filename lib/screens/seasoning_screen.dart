@@ -29,7 +29,7 @@ class SeasoningScreen extends StatelessWidget {
         elevation: 0,
         centerTitle: true,
         title: const Text(
-          '🥣 调料',
+          '🥣 蘸料',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
         ),
       ),
