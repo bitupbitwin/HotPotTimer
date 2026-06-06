@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1E1E1E"/>
+      <stop offset="100%" style="stop-color:#2A1A0A"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFCC00;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#FF8C00;stop-opacity:1"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 背景圆角矩形 -->
+  <rect width="1024" height="1024" rx="220" ry="220" fill="url(#bg)"/>
+
+  <!-- 外环装饰 -->
+  <circle cx="512" cy="512" r="380" fill="none" stroke="#FFCC00" stroke-width="6" opacity="0.15"/>
+
+  <!-- 锅身（椭圆底部） -->
+  <ellipse cx="512" cy="640" rx="260" ry="60" fill="#1A0A00" stroke="#FFCC00" stroke-width="8" opacity="0.9"/>
+  <rect x="252" y="440" width="520" height="200" rx="12" fill="#1A0A00" stroke="#FFCC00" stroke-width="8" opacity="0.9"/>
+  <ellipse cx="512" cy="440" rx="260" ry="60" fill="#2A1200" stroke="#FFCC00" stroke-width="8"/>
+
+  <!-- 锅耳（左右把手） -->
+  <rect x="180" y="490" width="72" height="30" rx="15" fill="#FFCC00"/>
+  <rect x="772" y="490" width="72" height="30" rx="15" fill="#FFCC00"/>
+
+  <!-- 汤面（锅内液体） -->
+  <ellipse cx="512" cy="440" rx="240" ry="48" fill="#8B1A00" opacity="0.85"/>
+
+  <!-- 汤面光泽 -->
+  <ellipse cx="470" cy="430" rx="80" ry="18" fill="#FF4500" opacity="0.3"/>
+
+  <!-- 热气/蒸汽 (3条) -->
+  <path d="M 420 380 Q 410 340 420 300 Q 430 260 420 220" stroke="url(#glow)" stroke-width="14" fill="none" stroke-linecap="round" opacity="0.8"/>
+  <path d="M 512 360 Q 502 310 512 270 Q 522 230 512 190" stroke="url(#glow)" stroke-width="14" fill="none" stroke-linecap="round" opacity="0.9"/>
+  <path d="M 604 380 Q 614 340 604 300 Q 594 260 604 220" stroke="url(#glow)" stroke-width="14" fill="none" stroke-linecap="round" opacity="0.8"/>
+
+  <!-- 计时器小图标（右下角点缀） -->
+  <circle cx="760" cy="750" r="90" fill="#1A1A1A" stroke="#FFCC00" stroke-width="6"/>
+  <circle cx="760" cy="750" r="72" fill="none" stroke="#FFCC00" stroke-width="5" opacity="0.4"/>
+  <!-- 时针 -->
+  <line x1="760" y1="750" x2="760" y2="696" stroke="#FFCC00" stroke-width="7" stroke-linecap="round"/>
+  <!-- 分针 -->
+  <line x1="760" y1="750" x2="792" y2="768" stroke="#FF8C00" stroke-width="5" stroke-linecap="round"/>
+  <!-- 中心点 -->
+  <circle cx="760" cy="750" r="6" fill="#FFCC00"/>
+
+  <!-- 底部品牌文字 -->
+  <text x="512" y="900" text-anchor="middle" font-family="sans-serif" font-size="72" font-weight="bold" fill="#FFCC00" opacity="0.9">火锅捞捞</text>
+</svg>

@@ -1,5 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.VIBRATE"/>
+    <!-- image_picker：读取相册（Android 13+） -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
+    <!-- image_picker：读取相册（Android 12 及以下） -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32"/>
+    <!-- image_picker：拍照 -->
+    <uses-permission android:name="android.permission.CAMERA"/>
     <application
         android:label="火锅捞捞"
         android:name="${applicationName}"
