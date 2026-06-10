@@ -1,8 +1,11 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 // 读取签名配置（本地 key.properties，不提交到 git）
 val keystorePropertiesFile = rootProject.file("key.properties")
-val keystoreProperties = java.util.Properties()
+val keystoreProperties = Properties()
 if (keystorePropertiesFile.exists()) {
-    keystoreProperties.load(java.io.FileInputStream(keystorePropertiesFile))
+    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
 plugins {
@@ -22,16 +25,16 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17.toString()
+        jvmTarget = "17"
     }
 
     signingConfigs {
         if (keystorePropertiesFile.exists()) {
             create("release") {
-                keyAlias     = keystoreProperties["keyAlias"] as String
-                keyPassword  = keystoreProperties["keyPassword"] as String
-                storeFile    = file(keystoreProperties["storeFile"] as String)
-                storePassword = keystoreProperties["storePassword"] as String
+                keyAlias      = keystoreProperties.getProperty("keyAlias")
+                keyPassword   = keystoreProperties.getProperty("keyPassword")
+                storeFile     = file(keystoreProperties.getProperty("storeFile"))
+                storePassword = keystoreProperties.getProperty("storePassword")
             }
         }
     }
@@ -50,7 +53,6 @@ android {
                 signingConfigs.getByName("release")
             else
                 signingConfigs.getByName("debug")
-            // Flutter 项目关闭混淆，避免 R8 裁掉引擎代码导致启动崩溃
             isMinifyEnabled = false
             isShrinkResources = false
         }
