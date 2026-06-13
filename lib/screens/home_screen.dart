@@ -538,9 +538,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         gridDelegate:
                             const SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 2,
-                              mainAxisSpacing: 10,
-                              crossAxisSpacing: 10,
-                              childAspectRatio: 2.65,
+                              mainAxisSpacing: 8,
+                              crossAxisSpacing: 8,
+                              mainAxisExtent: 54,
                             ),
                         itemCount: _visibleItems.length,
                         itemBuilder: (context, index) {
@@ -816,56 +816,61 @@ class _MenuItemTile extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(8),
         onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-          child: Row(
-            children: [
-              _MenuAvatar(item: item),
-              const SizedBox(width: 9),
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      item.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    const SizedBox(height: 3),
-                    Text(
-                      '${item.category} · 推荐 ${_formatSeconds(item.targetSeconds)}',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(color: Colors.grey[400], fontSize: 10),
-                    ),
-                  ],
-                ),
-              ),
-              if (quantity > 1)
-                Padding(
-                  padding: const EdgeInsets.only(right: 4),
-                  child: Text(
-                    'x$quantity',
-                    style: const TextStyle(
-                      color: Color(0xFFFFCC00),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w900,
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+              child: Row(
+                children: [
+                  _MenuAvatar(item: item, size: 36),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          item.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '推荐 ${_formatSeconds(item.targetSeconds)}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(color: Colors.grey[500], fontSize: 10),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-              Icon(
-                selected ? Icons.check_circle : Icons.add_circle_outline,
-                color: selected ? const Color(0xFFFFCC00) : Colors.grey[500],
-                size: 20,
+                  if (quantity > 1)
+                    Text(
+                      'x$quantity',
+                      style: const TextStyle(
+                        color: Color(0xFFFFCC00),
+                        fontSize: 11,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                ],
               ),
-            ],
-          ),
+            ),
+            Positioned(
+              top: 4,
+              right: 4,
+              child: Icon(
+                selected ? Icons.check_circle : Icons.add_circle_outline,
+                color: selected ? const Color(0xFFFFCC00) : Colors.grey[600],
+                size: 15,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -883,15 +888,16 @@ class _MenuItemTile extends StatelessWidget {
 
 class _MenuAvatar extends StatelessWidget {
   final HotpotItem item;
+  final double size;
 
-  const _MenuAvatar({required this.item});
+  const _MenuAvatar({required this.item, this.size = 42});
 
   @override
   Widget build(BuildContext context) {
     return ClipOval(
       child: Container(
-        width: 42,
-        height: 42,
+        width: size,
+        height: size,
         color: const Color(0xFF2A2A2A),
         alignment: Alignment.center,
         child: item.imagePath == null
@@ -902,7 +908,7 @@ class _MenuAvatar extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: item.emoji.isEmpty ? 10 : 22,
+                  fontSize: item.emoji.isEmpty ? 9 : (size * 0.55),
                   fontWeight: item.emoji.isEmpty
                       ? FontWeight.w800
                       : FontWeight.normal,
@@ -910,8 +916,8 @@ class _MenuAvatar extends StatelessWidget {
               )
             : Image.asset(
                 item.imagePath!,
-                width: 42,
-                height: 42,
+                width: size,
+                height: size,
                 fit: BoxFit.cover,
               ),
       ),

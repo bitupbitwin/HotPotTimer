@@ -1,10 +1,11 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/services.dart';
 import 'package:vibration/vibration.dart';
 
-/// 统一管理震动与提示音的硬件联动。
 class FeedbackService {
   static bool _canVibrate = false;
   static bool _inited = false;
+  static final AudioPlayer _player = AudioPlayer();
 
   static Future<void> init() async {
     if (_inited) return;
@@ -14,39 +15,39 @@ class FeedbackService {
     } catch (_) {
       _canVibrate = false;
     }
+    await _player.setReleaseMode(ReleaseMode.stop);
   }
 
-  /// 下锅时的轻微按键反馈
+  static Future<void> _play(String asset) async {
+    try {
+      await _player.stop();
+      await _player.play(AssetSource(asset));
+    } catch (_) {}
+  }
+
+  /// 下锅时轻触反馈 + 上升音效
   static void tapFeedback() {
     HapticFeedback.lightImpact();
-    if (_canVibrate) {
-      Vibration.vibrate(duration: 30);
-    }
+    if (_canVibrate) Vibration.vibrate(duration: 30);
+    _play('sounds/start.wav');
   }
 
-  /// 煮熟瞬间：叮咚提示音 + 一段提醒震动
+  /// 煮熟瞬间：叮咚提示音 + 间歇震动
   static void perfectAlarm() {
-    SystemSound.play(SystemSoundType.alert);
     HapticFeedback.mediumImpact();
-    if (_canVibrate) {
-      // 间歇性提醒：等-震-等-震
-      Vibration.vibrate(pattern: [0, 300, 200, 300]);
-    }
+    if (_canVibrate) Vibration.vibrate(pattern: [0, 300, 200, 300]);
+    _play('sounds/ready.wav');
   }
 
-  /// 超时报警：更急促的连续震动 + 提示音
+  /// 超时报警：急促三连音 + 连续震动
   static void urgentAlarm() {
-    SystemSound.play(SystemSoundType.alert);
     HapticFeedback.heavyImpact();
-    if (_canVibrate) {
-      Vibration.vibrate(pattern: [0, 200, 100, 200, 100, 200]);
-    }
+    if (_canVibrate) Vibration.vibrate(pattern: [0, 200, 100, 200, 100, 200]);
+    _play('sounds/overcooked.wav');
   }
 
-  /// 重置时停止震动
   static void stop() {
-    if (_canVibrate) {
-      Vibration.cancel();
-    }
+    if (_canVibrate) Vibration.cancel();
+    _player.stop();
   }
 }

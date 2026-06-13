@@ -35,6 +35,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   vibration: ^3.1.8
+  audioplayers: ^6.0.0
   image_picker: ^1.2.2
   shared_preferences: ^2.5.5
 
@@ -64,6 +65,7 @@ flutter:
   # 命名规范：assets/images/<id>_<name>.png，例如 assets/images/1_maodu.png
   assets:
     - assets/images/
+    - assets/sounds/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
