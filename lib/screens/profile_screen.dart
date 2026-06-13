@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'privacy_policy_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   final Set<String> tabooItems;
@@ -50,6 +51,15 @@ class ProfileScreen extends StatelessWidget {
                 icon: Icons.feedback_outlined,
                 title: '意见反馈',
                 onTap: () => _showFeedback(context),
+              ),
+              const _Divider(),
+              _NavTile(
+                icon: Icons.privacy_tip_outlined,
+                title: '隐私政策',
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const PrivacyPolicyScreen()),
+                ),
               ),
               const _Divider(),
               _InfoTile(icon: Icons.info_outline, title: '版本', value: _version),

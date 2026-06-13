@@ -43,3 +43,8 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Android 签名密钥（不提交到 git）
+android/key.properties
+*.jks
+*.keystore
