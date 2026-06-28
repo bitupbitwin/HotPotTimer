@@ -57,6 +57,15 @@ android {
             isShrinkResources = false
         }
     }
+
+    // 自定义输出 APK 文件名：hotpot-<版本号>.apk
+    applicationVariants.all {
+        val variant = this
+        variant.outputs.all {
+            val output = this as com.android.build.gradle.internal.api.BaseVariantOutputImpl
+            output.outputFileName = "hotpot-${variant.versionName}-${variant.buildType.name}.apk"
+        }
+    }
 }
 
 flutter {
