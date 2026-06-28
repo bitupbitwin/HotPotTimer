@@ -1,5 +1,19 @@
 {
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PROJECT_DIR:-/home/user/hotpot}/.claude/bump-version.sh\"",
+            "if": "Bash(git commit *)",
+            "timeout": 15,
+            "statusMessage": "升级版本号..."
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "hooks": [
