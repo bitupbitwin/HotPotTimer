@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/sauce_recipe.dart';
+import '../services/preference_store.dart';
 import 'home_screen.dart';
 import 'seasoning_screen.dart';
 import 'profile_screen.dart';
@@ -14,8 +15,29 @@ class MainScaffold extends StatefulWidget {
 class _MainScaffoldState extends State<MainScaffold> {
   int _currentIndex = 1; // 默认停在"涮锅"
 
+  final PreferenceStore _preferenceStore = PreferenceStore();
   final Set<String> _tabooItems = {};
   final List<SauceRecipe> _customSauces = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPreferences();
+  }
+
+  Future<void> _loadPreferences() async {
+    final taboo = await _preferenceStore.loadTabooItems();
+    final sauces = await _preferenceStore.loadCustomSauces();
+    if (!mounted) return;
+    setState(() {
+      _tabooItems
+        ..clear()
+        ..addAll(taboo);
+      _customSauces
+        ..clear()
+        ..addAll(sauces);
+    });
+  }
 
   void _toggleTaboo(String item) {
     setState(() {
@@ -25,14 +47,17 @@ class _MainScaffoldState extends State<MainScaffold> {
         _tabooItems.add(item);
       }
     });
+    _preferenceStore.saveTabooItems(_tabooItems);
   }
 
   void _addCustomSauce(SauceRecipe sauce) {
     setState(() => _customSauces.add(sauce));
+    _preferenceStore.saveCustomSauces(_customSauces);
   }
 
   void _removeCustomSauce(String id) {
     setState(() => _customSauces.removeWhere((s) => s.id == id));
+    _preferenceStore.saveCustomSauces(_customSauces);
   }
 
   @override

@@ -55,6 +55,7 @@ class _HotpotItemWidgetState extends State<HotpotItemWidget>
       vsync: this,
       duration: const Duration(milliseconds: 500),
     );
+    _applyAnimationForState();
   }
 
   @override
@@ -62,6 +63,10 @@ class _HotpotItemWidgetState extends State<HotpotItemWidget>
     super.didUpdateWidget(oldWidget);
     if (oldWidget.item.id != widget.item.id) {
       _reset();
+    }
+    if (_isExternallyControlled &&
+        oldWidget.displayState != widget.displayState) {
+      _applyAnimationForState();
     }
   }
 
@@ -135,10 +140,10 @@ class _HotpotItemWidgetState extends State<HotpotItemWidget>
     _applyAnimationForState();
   }
 
-  /// 根据状态设置闪烁频率与循环方式
+  /// 根据状态设置闪烁频率与循环方式（内部/外部受控均由展示状态驱动）
   void _applyAnimationForState() {
     _blink.stop();
-    switch (_state) {
+    switch (_displayState) {
       case HotpotState.idle:
         _blink.value = 0;
         break;
@@ -329,9 +334,7 @@ class _HotpotItemWidgetState extends State<HotpotItemWidget>
           AnimatedBuilder(
             animation: _blink,
             builder: (context, _) {
-              final pulse = _isExternallyControlled
-                  ? (_displayState == HotpotState.idle ? 0.0 : 1.0)
-                  : _blink.value;
+              final pulse = _blink.value;
               final color = _ringColor(pulse);
               return Container(
                 width: d + 22,

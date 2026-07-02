@@ -29,6 +29,8 @@ class _HomeScreenState extends State<HomeScreen> {
   final SelectedItemStore _selectedItemStore = SelectedItemStore();
   final Map<String, SelectedHotpotItem> _selectedItems = {};
   final List<HotpotItem> _customItems = [];
+  // 上一秒各食材的状态，用于检测跃迁并触发提示音/震动
+  final Map<String, HotpotState> _lastStates = {};
   Timer? _ticker;
 
   String _selectedCategory = hotpotCategories.first;
@@ -88,8 +90,9 @@ class _HomeScreenState extends State<HomeScreen> {
     _loadCustomItems();
     _loadSelectedItems();
     _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (mounted &&
-          _selectedItems.values.any((item) => item.startedAt != null)) {
+      if (!mounted) return;
+      if (_selectedItems.values.any((item) => item.startedAt != null)) {
+        _checkStateTransitions();
         setState(() {});
       }
     });
@@ -108,7 +111,12 @@ class _HomeScreenState extends State<HomeScreen> {
       _customItems
         ..clear()
         ..addAll(items);
-      _customSeed = items.length;
+      // 取现有 custom_N 的最大 N，删除后重启不会复用旧 id 导致冲突
+      _customSeed = items.fold<int>(0, (maxSeed, item) {
+        final match = RegExp(r'^custom_(\d+)$').firstMatch(item.id);
+        final n = match == null ? 0 : int.parse(match.group(1)!);
+        return n > maxSeed ? n : maxSeed;
+      });
     });
   }
 
@@ -146,29 +154,65 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       for (final item in items) {
         final selected = _selectedItems[item.id];
-        _selectedItems[item.id] = SelectedHotpotItem(
-          item: item,
-          quantity: (selected?.quantity ?? 0) + 1,
-        );
+        // 已存在时仅叠加数量，保留 startedAt，避免清掉正在走的计时
+        _selectedItems[item.id] = selected == null
+            ? SelectedHotpotItem(item: item)
+            : selected.copyWith(quantity: selected.quantity + 1);
       }
     });
     _persistSelectedItems();
   }
 
   void _clearSelectedItems() {
-    setState(_selectedItems.clear);
+    FeedbackService.stop();
+    setState(() {
+      _selectedItems.clear();
+      _lastStates.clear();
+    });
     _persistSelectedItems();
+  }
+
+  /// 检测每个已点食材的状态跃迁，触发对应提示音与震动。
+  /// 计时状态由时间推导（外部受控模式），HotpotItemWidget 内部
+  /// 状态机不会运行，因此提醒必须在这里驱动。
+  void _checkStateTransitions() {
+    for (final selected in _selectedItems.values) {
+      final id = selected.item.id;
+      final current = selected.state;
+      final previous = _lastStates[id];
+      if (previous != null && current != previous) {
+        if (current == HotpotState.ready) {
+          FeedbackService.perfectAlarm();
+        } else if (current == HotpotState.overcooked) {
+          FeedbackService.urgentAlarm();
+        }
+      } else if (current == HotpotState.overcooked &&
+          selected.overtimeSeconds > 60 &&
+          selected.overtimeSeconds % 15 == 0) {
+        // 持续超时，周期性催促
+        FeedbackService.urgentAlarm();
+      }
+      _lastStates[id] = current;
+    }
+    _lastStates.removeWhere((id, _) => !_selectedItems.containsKey(id));
   }
 
   void _startOrResetTimer(HotpotItem item) {
     final selected = _selectedItems[item.id];
     if (selected == null) return;
 
-    FeedbackService.stop();
+    final starting = selected.startedAt == null;
+    if (starting) {
+      FeedbackService.tapFeedback();
+    } else {
+      FeedbackService.stop();
+    }
     setState(() {
-      _selectedItems[item.id] = selected.startedAt == null
+      _selectedItems[item.id] = starting
           ? selected.copyWith(startedAt: DateTime.now())
           : selected.copyWith(clearStartedAt: true);
+      _lastStates[item.id] =
+          starting ? HotpotState.counting : HotpotState.idle;
     });
     _persistSelectedItems();
   }
