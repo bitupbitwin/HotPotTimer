@@ -144,7 +144,7 @@ class ProfileScreen extends StatelessWidget {
   }
 
   void _showFeedback(BuildContext context) {
-    const email = 'feedback@hotpot-app.example';
+    const email = 'jingyuzhang053@gmail.com';
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(

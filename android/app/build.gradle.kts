@@ -49,10 +49,12 @@ android {
 
     buildTypes {
         release {
-            signingConfig = if (keystorePropertiesFile.exists())
+            signingConfig = if (keystorePropertiesFile.exists()) {
                 signingConfigs.getByName("release")
-            else
+            } else {
+                println("⚠️ WARNING: key.properties 不存在，release 包将使用 debug 签名，仅供本机测试，不能上架应用商店！")
                 signingConfigs.getByName("debug")
+            }
             isMinifyEnabled = false
             isShrinkResources = false
         }

@@ -22,10 +22,17 @@ class PreferenceStore {
   Future<List<SauceRecipe>> loadCustomSauces() async {
     final prefs = await SharedPreferences.getInstance();
     final rawSauces = prefs.getStringList(_saucesKey) ?? const [];
-    return rawSauces
-        .map((raw) => jsonDecode(raw) as Map<String, dynamic>)
-        .map(SauceRecipe.fromJson)
-        .toList();
+    final sauces = <SauceRecipe>[];
+    for (final raw in rawSauces) {
+      try {
+        sauces.add(
+          SauceRecipe.fromJson(jsonDecode(raw) as Map<String, dynamic>),
+        );
+      } catch (_) {
+        // 跳过损坏的数据条目，避免整表加载失败
+      }
+    }
+    return sauces;
   }
 
   Future<void> saveCustomSauces(List<SauceRecipe> sauces) async {

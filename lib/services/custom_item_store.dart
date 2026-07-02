@@ -11,10 +11,15 @@ class CustomItemStore {
     final prefs = await SharedPreferences.getInstance();
     final rawItems = prefs.getStringList(_itemsKey) ?? const [];
 
-    return rawItems
-        .map((raw) => jsonDecode(raw) as Map<String, dynamic>)
-        .map(HotpotItem.fromJson)
-        .toList();
+    final items = <HotpotItem>[];
+    for (final raw in rawItems) {
+      try {
+        items.add(HotpotItem.fromJson(jsonDecode(raw) as Map<String, dynamic>));
+      } catch (_) {
+        // 跳过损坏的数据条目，避免整表加载失败
+      }
+    }
+    return items;
   }
 
   Future<void> saveItems(List<HotpotItem> items) async {

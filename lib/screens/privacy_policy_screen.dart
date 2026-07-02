@@ -48,7 +48,7 @@ class _PolicyContent extends StatelessWidget {
         _Section('一、我们收集的信息'),
         _Body('本应用为工具类应用，设计目标是尽量少收集或不收集用户个人数据。'),
         SizedBox(height: 8),
-        _BulletItem('相册/相机权限', '仅当您主动点击"拍照识别食材"功能时，本应用会请求访问您的相机或相册。图片仅在本地设备上处理，不上传至任何服务器。'),
+        _BulletItem('相册选图', '仅当您主动使用"照片识别食材"功能时，本应用会调起系统相册选择器，由系统代为选图，本应用不申请相机或存储权限。图片仅在本地设备上处理，不上传至任何服务器。'),
         _BulletItem('本地存储', '您设置的忌口偏好、自定义蘸料方案等数据仅保存在您的本地设备上（通过系统 SharedPreferences），不会上传或共享。'),
         _BulletItem('震动权限', '用于倒计时结束时的震动提醒，不涉及任何数据收集。'),
         SizedBox(height: 20),
@@ -63,9 +63,7 @@ class _PolicyContent extends StatelessWidget {
         SizedBox(height: 20),
 
         _Section('三、权限说明'),
-        _BulletItem('READ_MEDIA_IMAGES / READ_EXTERNAL_STORAGE', '读取相册图片，用于食材拍照识别功能。不使用该功能时不会触发此权限。'),
-        _BulletItem('CAMERA', '调用摄像头拍照，用于食材识别。不使用该功能时不会触发此权限。'),
-        _BulletItem('VIBRATE', '震动提醒，无需用户授权，不涉及数据收集。'),
+        _BulletItem('VIBRATE（震动）', '震动提醒，无需用户授权，不涉及数据收集。本应用未申请其他任何权限：相册选图通过系统选择器完成，不需要存储或相机权限。'),
         SizedBox(height: 20),
 
         _Section('四、第三方服务'),

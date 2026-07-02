@@ -163,6 +163,27 @@ class _HomeScreenState extends State<HomeScreen> {
     _persistSelectedItems();
   }
 
+  Future<void> _confirmClearSelectedItems() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('清空已点'),
+        content: const Text('将移除所有已点食材并停止计时，确定吗？'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('取消'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('清空'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) _clearSelectedItems();
+  }
+
   void _clearSelectedItems() {
     FeedbackService.stop();
     setState(() {
@@ -304,9 +325,10 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Future<String?> _askRecognitionHints(String fileName) {
+  Future<String?> _askRecognitionHints(String fileName) async {
     final controller = TextEditingController();
-    return showDialog<String>(
+    try {
+      return await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('确认照片里的食材'),
@@ -342,7 +364,10 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-    );
+      );
+    } finally {
+      controller.dispose();
+    }
   }
 
   Future<void> _showMissingItemsDialog(List<String> missingNames) async {
@@ -432,13 +457,14 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Future<HotpotItem?> _askCustomItem(String initialName) {
+  Future<HotpotItem?> _askCustomItem(String initialName) async {
     final nameController = TextEditingController(
       text: initialName == '未识别食材' ? '' : initialName,
     );
     final secondsController = TextEditingController(text: '60');
 
-    return showDialog<HotpotItem>(
+    try {
+      return await showDialog<HotpotItem>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('未收录食材'),
@@ -490,7 +516,11 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-    );
+      );
+    } finally {
+      nameController.dispose();
+      secondsController.dispose();
+    }
   }
 
   Future<void> _addCustomItemManually() async {
@@ -553,7 +583,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       selectedCount: selectedCount,
                       onPickImage: _pickAndRecognizeImage,
                       onManageCustom: _showCustomItemManager,
-                      onClear: selectedCount == 0 ? null : _clearSelectedItems,
+                      onClear: selectedCount == 0
+                          ? null
+                          : _confirmClearSelectedItems,
                     ),
                   ),
                   SliverToBoxAdapter(
