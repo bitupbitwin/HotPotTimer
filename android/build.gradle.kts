@@ -1,5 +1,9 @@
 allprojects {
     repositories {
+        // 国内镜像优先，规避 Maven Central TLS 握手失败/下载缓慢
+        maven("https://maven.aliyun.com/repository/google")
+        maven("https://maven.aliyun.com/repository/central")
+        maven("https://maven.aliyun.com/repository/gradle-plugin")
         google()
         mavenCentral()
     }
