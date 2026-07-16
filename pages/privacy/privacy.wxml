@@ -1,0 +1,37 @@
+<scroll-view scroll-y class="page">
+  <view class="title">火锅捞捞 隐私政策</view>
+  <view class="meta">最后更新日期：2026年7月</view>
+
+  <view class="body">欢迎使用火锅捞捞（以下简称"本小程序"）。本小程序由个人开发者开发并发布。我们非常重视您的个人隐私，请您仔细阅读本隐私政策。</view>
+
+  <view class="section">一、我们收集的信息</view>
+  <view class="body">本小程序为工具类小程序，设计目标是尽量少收集或不收集用户个人数据。</view>
+  <view class="bullet"><text class="bullet-dot">• </text><text class="bullet-title">相册选图：</text>仅当您主动使用"照片识别食材"功能时，本小程序会调起微信的媒体选择器（wx.chooseMedia），由微信代为选图。图片仅在本地处理，不上传至任何服务器。</view>
+  <view class="bullet"><text class="bullet-dot">• </text><text class="bullet-title">本地存储：</text>您设置的忌口偏好、自定义蘸料方案、已点食材等数据仅保存在您设备上的微信本地缓存中，不会上传或共享。</view>
+  <view class="bullet"><text class="bullet-dot">• </text><text class="bullet-title">震动提醒：</text>使用微信提供的震动接口在倒计时结束时提醒，不涉及任何数据收集。</view>
+
+  <view class="section">二、我们不收集的信息</view>
+  <view class="body">本小程序不收集以下任何信息：</view>
+  <view class="simple">• 您的姓名、手机号、邮箱等个人身份信息</view>
+  <view class="simple">• 您的微信昵称、头像、openId 等账号信息</view>
+  <view class="simple">• 您的位置信息</view>
+  <view class="simple">• 使用行为数据或统计数据</view>
+  <view class="simple">• 本小程序不内置任何第三方统计 SDK 或广告 SDK</view>
+
+  <view class="section">三、第三方服务</view>
+  <view class="body">本小程序当前版本不集成任何第三方 SDK（包括但不限于广告、统计、推送、支付）。所有功能均在本地运行，不与任何第三方服务器通信。</view>
+
+  <view class="section">四、数据安全</view>
+  <view class="body">您的所有使用数据（偏好设置、自定义方案等）均存储在微信本地缓存中，删除本小程序或清除微信缓存将自动清除全部本地数据。</view>
+
+  <view class="section">五、儿童隐私</view>
+  <view class="body">本小程序不针对 14 周岁以下未成年人，也不主动收集未成年人的任何个人信息。</view>
+
+  <view class="section">六、政策变更</view>
+  <view class="body">如本隐私政策发生变更，我们将在小程序内通过版本更新说明告知您。继续使用本小程序视为您接受更新后的政策。</view>
+
+  <view class="section">七、联系我们</view>
+  <view class="body">如您对本隐私政策有任何疑问，请通过"我的 → 意见反馈"联系我们。</view>
+
+  <view class="meta footer-meta">本政策适用于火锅捞捞微信小程序版本。</view>
+</scroll-view>

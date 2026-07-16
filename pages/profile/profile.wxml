@@ -1,0 +1,95 @@
+<scroll-view scroll-y class="page">
+  <view class="app-header">
+    <view class="app-logo">🍲</view>
+    <view class="app-name">火锅捞捞</view>
+    <view class="app-slogan">你的专属涮锅计时助手</view>
+  </view>
+
+  <view class="section">
+    <view class="section-title">饮食偏好</view>
+    <view class="card">
+      <view class="row" bindtap="goSeasoning">
+        <view class="row-icon">🚫</view>
+        <view class="row-main">
+          <view class="row-title">忌口设置</view>
+          <view wx:if="{{tabooItems.length === 0}}" class="row-sub">暂未设置，点击前往蘸料页配置</view>
+          <view wx:else class="taboo-wrap">
+            <view wx:for="{{tabooItems}}" wx:key="*this" class="taboo-chip">{{item}}</view>
+          </view>
+        </view>
+        <view class="row-arrow">›</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-title">使用说明</view>
+    <view class="card">
+      <view class="row" bindtap="openHowTo">
+        <view class="row-icon">❓</view>
+        <view class="row-main"><view class="row-title">如何使用</view></view>
+        <view class="row-arrow">›</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-title">关于应用</view>
+    <view class="card">
+      <view class="row" bindtap="openFeedback">
+        <view class="row-icon">💬</view>
+        <view class="row-main"><view class="row-title">意见反馈</view></view>
+        <view class="row-arrow">›</view>
+      </view>
+      <view class="divider"></view>
+      <view class="row" bindtap="goPrivacy">
+        <view class="row-icon">🛡️</view>
+        <view class="row-main"><view class="row-title">隐私政策</view></view>
+        <view class="row-arrow">›</view>
+      </view>
+      <view class="divider"></view>
+      <view class="row">
+        <view class="row-icon">ℹ️</view>
+        <view class="row-main"><view class="row-title">版本</view></view>
+        <view class="row-value">{{version}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="footer">涮得刚好，每一口都是完美</view>
+</scroll-view>
+
+<!-- 如何使用弹窗 -->
+<view wx:if="{{howToDialog}}" class="modal-mask" catchtouchmove="true">
+  <view class="modal-panel">
+    <view class="modal-title">如何使用</view>
+    <view class="modal-body">
+      <view class="howto-row"><view class="howto-label">👆 轻触食材圆圈</view><view class="howto-desc">开始计时，外圈黄色闪烁</view></view>
+      <view class="howto-row"><view class="howto-label">🟡 黄色外圈</view><view class="howto-desc">正在煮制中</view></view>
+      <view class="howto-row"><view class="howto-label">🟢 绿色常亮</view><view class="howto-desc">完美出锅！震动提醒</view></view>
+      <view class="howto-row"><view class="howto-label">🔴 红色急闪</view><view class="howto-desc">已严重超时，快捞出来</view></view>
+      <view class="howto-row"><view class="howto-label">👆 再次点击圆圈</view><view class="howto-desc">重置该食材，重新计时</view></view>
+      <view class="howto-row"><view class="howto-label">🥣 蘸料标签</view><view class="howto-desc">查看忌口设置与蘸料方案</view></view>
+    </view>
+    <view class="modal-actions">
+      <view class="modal-btn primary" bindtap="closeHowTo">知道了</view>
+    </view>
+  </view>
+</view>
+
+<!-- 意见反馈弹窗 -->
+<view wx:if="{{feedbackDialog}}" class="modal-mask" catchtouchmove="true">
+  <view class="modal-panel">
+    <view class="modal-title">意见反馈</view>
+    <view class="modal-body">
+      <view class="feedback-tip">欢迎把你的想法、建议或 Bug 反馈给我们 😊</view>
+      <view class="email-box" bindtap="copyEmail">
+        <view class="email-text">{{email}}</view>
+        <view class="email-copy">复制</view>
+      </view>
+    </view>
+    <view class="modal-actions">
+      <view class="modal-btn cancel" bindtap="closeFeedback">关闭</view>
+    </view>
+  </view>
+</view>

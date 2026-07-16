@@ -1,0 +1,57 @@
+.page {
+  height: 100vh;
+  box-sizing: border-box;
+  padding: 40rpx;
+}
+
+.title {
+  color: #ffffff;
+  font-size: 34rpx;
+  font-weight: 700;
+}
+
+.meta {
+  color: #666666;
+  font-size: 23rpx;
+  margin-top: 10rpx;
+}
+
+.section {
+  color: #ffcc00;
+  font-size: 27rpx;
+  font-weight: 700;
+  margin: 40rpx 0 14rpx;
+}
+
+.body {
+  color: #aaaaaa;
+  font-size: 25rpx;
+  line-height: 1.7;
+  margin-top: 16rpx;
+}
+
+.bullet {
+  color: #aaaaaa;
+  font-size: 25rpx;
+  line-height: 1.7;
+  margin-top: 14rpx;
+}
+
+.bullet-dot {
+  color: #ffcc00;
+}
+
+.bullet-title {
+  color: #ffffff;
+}
+
+.simple {
+  color: #aaaaaa;
+  font-size: 25rpx;
+  line-height: 1.7;
+  margin-top: 6rpx;
+}
+
+.footer-meta {
+  margin: 56rpx 0 80rpx;
+}

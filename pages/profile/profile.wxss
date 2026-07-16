@@ -1,0 +1,158 @@
+.page {
+  height: 100vh;
+  box-sizing: border-box;
+}
+
+.app-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 64rpx 0 48rpx;
+}
+
+.app-logo {
+  font-size: 104rpx;
+}
+
+.app-name {
+  color: #ffffff;
+  font-size: 42rpx;
+  font-weight: 700;
+  margin-top: 18rpx;
+}
+
+.app-slogan {
+  color: #666666;
+  font-size: 25rpx;
+  margin-top: 8rpx;
+}
+
+.section {
+  padding: 0 32rpx;
+  margin-bottom: 32rpx;
+}
+
+.section-title {
+  color: #ffcc00;
+  font-size: 25rpx;
+  font-weight: 700;
+  letter-spacing: 1rpx;
+  margin: 0 8rpx 16rpx;
+}
+
+.card {
+  background: #1a1a1a;
+  border: 2rpx solid #2a2a2a;
+  border-radius: 24rpx;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  padding: 28rpx 32rpx;
+}
+
+.row-icon {
+  font-size: 34rpx;
+  margin-right: 22rpx;
+}
+
+.row-main {
+  flex: 1;
+}
+
+.row-title {
+  color: #ffffff;
+  font-size: 27rpx;
+}
+
+.row-sub {
+  color: #555555;
+  font-size: 23rpx;
+  margin-top: 10rpx;
+}
+
+.row-value {
+  color: #666666;
+  font-size: 27rpx;
+}
+
+.row-arrow {
+  color: #555555;
+  font-size: 36rpx;
+  margin-left: 12rpx;
+}
+
+.divider {
+  height: 2rpx;
+  background: #242424;
+  margin-left: 96rpx;
+}
+
+.taboo-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10rpx;
+  margin-top: 12rpx;
+}
+
+.taboo-chip {
+  background: #3a1818;
+  border: 2rpx solid rgba(255, 59, 48, 0.4);
+  color: #ff6b60;
+  font-size: 21rpx;
+  border-radius: 20rpx;
+  padding: 4rpx 16rpx;
+}
+
+.footer {
+  color: #3a3a3a;
+  font-size: 23rpx;
+  text-align: center;
+  margin: 48rpx 0;
+}
+
+/* 弹窗内部 */
+.howto-row {
+  display: flex;
+  margin-bottom: 20rpx;
+}
+
+.howto-label {
+  width: 240rpx;
+  color: #cccccc;
+  font-size: 25rpx;
+  flex-shrink: 0;
+}
+
+.howto-desc {
+  flex: 1;
+  color: #888888;
+  font-size: 25rpx;
+}
+
+.feedback-tip {
+  color: #aaaaaa;
+  font-size: 25rpx;
+  margin-bottom: 28rpx;
+}
+
+.email-box {
+  display: flex;
+  align-items: center;
+  background: #242424;
+  border: 2rpx solid #333333;
+  border-radius: 16rpx;
+  padding: 20rpx 24rpx;
+}
+
+.email-text {
+  flex: 1;
+  color: #ffcc00;
+  font-size: 25rpx;
+}
+
+.email-copy {
+  color: #666666;
+  font-size: 23rpx;
+}

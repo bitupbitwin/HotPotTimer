@@ -1,0 +1,185 @@
+.page {
+  height: 100vh;
+  box-sizing: border-box;
+  padding: 32rpx;
+}
+
+.section-header {
+  color: #ffcc00;
+  font-size: 28rpx;
+  font-weight: 700;
+  letter-spacing: 1rpx;
+}
+
+.section-sub {
+  color: #666666;
+  font-size: 23rpx;
+  margin: 8rpx 0 22rpx;
+}
+
+.top-gap {
+  margin-top: 48rpx;
+}
+
+/* 忌口 chips */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.chip {
+  padding: 12rpx 28rpx;
+  border-radius: 40rpx;
+  background: #1e1e1e;
+  border: 2rpx solid #333333;
+  color: #cccccc;
+  font-size: 25rpx;
+}
+
+.chip-on {
+  background: #3d1a1a;
+  border-color: rgba(255, 59, 48, 0.6);
+  color: #ff3b30;
+}
+
+.chip-check {
+  font-weight: 700;
+}
+
+/* 蘸料卡片 */
+.sauce-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.sauce-card {
+  background: #1a1a1a;
+  border: 2rpx solid #2a2a2a;
+  border-radius: 24rpx;
+  padding: 28rpx;
+}
+
+.sauce-card.warn {
+  border-color: rgba(255, 59, 48, 0.35);
+}
+
+.sauce-head {
+  display: flex;
+  align-items: center;
+}
+
+.sauce-name {
+  color: #ffffff;
+  font-size: 29rpx;
+  font-weight: 600;
+  margin-right: 16rpx;
+}
+
+.tag {
+  background: #2a2a1a;
+  color: #ffcc00;
+  font-size: 20rpx;
+  border-radius: 8rpx;
+  padding: 4rpx 12rpx;
+  margin-right: 12rpx;
+}
+
+.tag-custom {
+  background: #1a2d1a;
+  color: #4cd964;
+}
+
+.tag-warn {
+  background: #3d1a1a;
+  color: #ff6b60;
+}
+
+.sauce-delete {
+  margin-left: auto;
+  color: #888888;
+  font-size: 24rpx;
+  padding: 6rpx 10rpx;
+}
+
+.sauce-desc {
+  color: #777777;
+  font-size: 23rpx;
+  margin-top: 8rpx;
+}
+
+.ing-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-top: 20rpx;
+}
+
+.ing {
+  background: #242424;
+  color: #999999;
+  font-size: 23rpx;
+  border-radius: 8rpx;
+  padding: 6rpx 16rpx;
+}
+
+.ing-taboo {
+  background: #3a1818;
+  color: #ff6b60;
+  border: 2rpx solid rgba(255, 59, 48, 0.4);
+  text-decoration: line-through;
+}
+
+/* 我的蘸料 */
+.my-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 48rpx 0 16rpx;
+}
+
+.add-link {
+  color: #ffcc00;
+  font-size: 25rpx;
+}
+
+.empty-card {
+  background: #1a1a1a;
+  border: 2rpx solid #2a2a2a;
+  border-radius: 24rpx;
+  padding: 48rpx 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.empty-emoji {
+  font-size: 60rpx;
+}
+
+.empty-title {
+  color: #555555;
+  font-size: 25rpx;
+  margin-top: 16rpx;
+}
+
+.empty-sub {
+  color: #444444;
+  font-size: 23rpx;
+  margin-top: 6rpx;
+}
+
+.modal-textarea {
+  height: 150rpx;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.input-placeholder {
+  color: #555555;
+}
+
+.bottom-space {
+  height: 64rpx;
+}

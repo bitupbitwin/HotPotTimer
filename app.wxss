@@ -1,0 +1,84 @@
+/* 全局黑金主题 */
+page {
+  background: #121212;
+  color: #ffffff;
+  font-size: 28rpx;
+  height: 100%;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 通用弹窗遮罩与面板 */
+.modal-mask {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-panel {
+  width: 620rpx;
+  max-height: 76vh;
+  background: #1e1e1e;
+  border-radius: 28rpx;
+  padding: 36rpx 32rpx 24rpx;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-title {
+  color: #ffffff;
+  font-size: 34rpx;
+  font-weight: 600;
+  margin-bottom: 24rpx;
+}
+
+.modal-body {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 24rpx;
+}
+
+.modal-btn {
+  padding: 16rpx 32rpx;
+  font-size: 28rpx;
+  border-radius: 12rpx;
+  margin-left: 16rpx;
+}
+
+.modal-btn.cancel {
+  color: #888888;
+}
+
+.modal-btn.primary {
+  color: #000000;
+  background: #ffcc00;
+  font-weight: 700;
+}
+
+.modal-input {
+  background: #242424;
+  border: 2rpx solid #333333;
+  border-radius: 16rpx;
+  padding: 18rpx 20rpx;
+  color: #ffffff;
+  font-size: 28rpx;
+  margin-bottom: 24rpx;
+}
+
+.modal-input-hint {
+  color: #555555;
+  font-size: 24rpx;
+  margin-bottom: 12rpx;
+}

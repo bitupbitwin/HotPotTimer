@@ -1,50 +1,16 @@
-# Miscellaneous
-*.class
-*.log
-*.pyc
-*.swp
+# 微信开发者工具个人配置（不应提交）
+project.private.config.json
+
+# 系统文件
 .DS_Store
-.atom/
-.build/
-.buildlog/
-.history
-.svn/
-.swiftpm/
-migrate_working_dir/
+Thumbs.db
+*.log
+*.swp
 
-# IntelliJ related
-*.iml
-*.ipr
-*.iws
+# 依赖与构建产物
+node_modules/
+miniprogram_npm/
+dist/
+
+# IDE
 .idea/
-
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
-
-# Flutter/Dart/Pub related
-**/doc/api/
-**/ios/Flutter/.last_build_id
-.dart_tool/
-.flutter-plugins-dependencies
-.pub-cache/
-.pub/
-/build/
-/coverage/
-
-# Symbolication related
-app.*.symbols
-
-# Obfuscation related
-app.*.map.json
-
-# Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release
-
-# Android 签名密钥（不提交到 git）
-android/key.properties
-*.jks
-*.keystore

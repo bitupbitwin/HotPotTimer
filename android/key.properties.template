@@ -1,6 +1,0 @@
-# 复制此文件为 key.properties，填写真实信息，不要提交到 git
-# Copy this file to key.properties, fill in real values, do NOT commit to git
-storePassword=你的keystore密码
-keyPassword=你的key密码
-keyAlias=hotpot
-storeFile=../hotpot-release.jks

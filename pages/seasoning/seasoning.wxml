@@ -1,0 +1,83 @@
+<scroll-view scroll-y class="page">
+  <view class="section-header">忌口设置</view>
+  <view class="section-sub">选中后，含该食材的蘸料方案将标红提示</view>
+  <view class="chips">
+    <view
+      wx:for="{{tabooOptions}}"
+      wx:key="name"
+      class="chip {{item.selected ? 'chip-on' : ''}}"
+      bindtap="onToggleTaboo"
+      data-name="{{item.name}}"
+    >
+      <text wx:if="{{item.selected}}" class="chip-check">✓ </text>{{item.name}}
+    </view>
+  </view>
+
+  <view class="section-header top-gap">推荐蘸料方案</view>
+  <view class="section-sub">经网络资料验证的经典配方，按个人口味调整比例</view>
+  <view class="sauce-list">
+    <view wx:for="{{defaultSauces}}" wx:key="id" class="sauce-card {{item.hasTaboo ? 'warn' : ''}}">
+      <view class="sauce-head">
+        <view class="sauce-name">{{item.name}}</view>
+        <view class="tag">{{item.tag}}</view>
+        <view wx:if="{{item.hasTaboo}}" class="tag tag-warn">含忌口</view>
+      </view>
+      <view wx:if="{{item.description}}" class="sauce-desc">{{item.description}}</view>
+      <view class="ing-wrap">
+        <view wx:for="{{item.ingredientRows}}" wx:for-item="ing" wx:key="name" class="ing {{ing.isTaboo ? 'ing-taboo' : ''}}">{{ing.name}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="my-header">
+    <view class="section-header">我的蘸料</view>
+    <view class="add-link" bindtap="onOpenAdd">＋ 新增方案</view>
+  </view>
+  <view wx:if="{{customSauces.length === 0}}" class="empty-card">
+    <view class="empty-emoji">🍶</view>
+    <view class="empty-title">还没有自定义方案</view>
+    <view class="empty-sub">点右上角"新增方案"创建属于你的蘸料</view>
+  </view>
+  <view wx:else class="sauce-list">
+    <view wx:for="{{customSauces}}" wx:key="id" class="sauce-card {{item.hasTaboo ? 'warn' : ''}}">
+      <view class="sauce-head">
+        <view class="sauce-name">{{item.name}}</view>
+        <view class="tag tag-custom">{{item.tag}}</view>
+        <view wx:if="{{item.hasTaboo}}" class="tag tag-warn">含忌口</view>
+        <view class="sauce-delete" bindtap="onRemoveSauce" data-id="{{item.id}}">删除</view>
+      </view>
+      <view class="ing-wrap">
+        <view wx:for="{{item.ingredientRows}}" wx:for-item="ing" wx:key="name" class="ing {{ing.isTaboo ? 'ing-taboo' : ''}}">{{ing.name}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="bottom-space"></view>
+</scroll-view>
+
+<!-- 新增蘸料弹窗 -->
+<view wx:if="{{addDialog.visible}}" class="modal-mask" catchtouchmove="true">
+  <view class="modal-panel">
+    <view class="modal-title">新增蘸料方案</view>
+    <view class="modal-body">
+      <input
+        class="modal-input"
+        value="{{addDialog.name}}"
+        placeholder="方案名称（如：我的特调）"
+        placeholder-class="input-placeholder"
+        bindinput="onAddNameInput"
+      />
+      <textarea
+        class="modal-input modal-textarea"
+        value="{{addDialog.ingredients}}"
+        placeholder="食材列表，用逗号分隔&#10;例：芝麻酱，蒜蓉，香油，葱花"
+        placeholder-class="input-placeholder"
+        bindinput="onAddIngredientsInput"
+      ></textarea>
+    </view>
+    <view class="modal-actions">
+      <view class="modal-btn cancel" bindtap="onAddCancel">取消</view>
+      <view class="modal-btn primary" bindtap="onAddSave">保存</view>
+    </view>
+  </view>
+</view>

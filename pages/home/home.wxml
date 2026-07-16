@@ -1,0 +1,172 @@
+<view class="page">
+  <!-- 左侧分类栏 -->
+  <scroll-view scroll-y class="rail">
+    <view
+      wx:for="{{categories}}"
+      wx:key="*this"
+      class="rail-item {{item === selectedCategory ? 'active' : ''}}"
+      bindtap="onSelectCategory"
+      data-category="{{item}}"
+    >
+      <view class="rail-label">{{item}}</view>
+      <view wx:if="{{item === '已点' && selectedCount > 0}}" class="rail-count">{{selectedCount}}</view>
+    </view>
+  </scroll-view>
+
+  <!-- 右侧内容区 -->
+  <scroll-view scroll-y class="content">
+    <view class="header">
+      <view class="header-title">已选 {{selectedCount}} 道</view>
+      <view class="header-btn" bindtap="onPickImage">📷</view>
+      <view class="header-btn" bindtap="onOpenManager">📝</view>
+      <view class="header-btn {{selectedCount ? '' : 'disabled'}}" bindtap="onClearAll">🗑</view>
+    </view>
+
+    <view class="section-title">{{selectedCategory === '已点' ? '已点菜品' : selectedCategory}}</view>
+
+    <!-- 已点计时区 -->
+    <block wx:if="{{selectedCategory === '已点'}}">
+      <view wx:if="{{selectedCards.length === 0}}" class="empty-box">
+        从左侧分类选择食材后，这里会显示已点菜品
+      </view>
+      <view wx:else class="timer-grid">
+        <view wx:for="{{selectedCards}}" wx:key="id" class="timer-card">
+          <view class="ring ring-{{item.state}}" bindtap="onTimerTap" data-id="{{item.id}}">
+            <view class="ring-inner">
+              <image wx:if="{{item.imagePath}}" class="ring-img" src="{{item.imagePath}}" mode="aspectFill" />
+              <view wx:else class="ring-emoji">{{item.emoji || item.name}}</view>
+              <view wx:if="{{item.state !== 'idle'}}" class="ring-overlay">
+                <view class="overlay-time">{{item.timeText}}</view>
+                <view wx:if="{{item.label}}" class="overlay-label {{item.state === 'overcooked' ? 'danger' : ''}}">{{item.label}}</view>
+              </view>
+            </view>
+          </view>
+          <view wx:if="{{item.quantity > 1}}" class="qty-badge">x{{item.quantity}}</view>
+          <view class="remove-btn" bindtap="onRemoveSelected" data-id="{{item.id}}">✕</view>
+          <view class="timer-name">{{item.name}}</view>
+          <view class="timer-target">推荐 {{item.targetText}}</view>
+        </view>
+      </view>
+    </block>
+
+    <!-- 食材菜单网格 -->
+    <view wx:else class="menu-grid">
+      <view
+        wx:for="{{menuItems}}"
+        wx:key="id"
+        class="menu-tile {{item.selected ? 'selected' : ''}}"
+        bindtap="onToggleItem"
+        data-id="{{item.id}}"
+      >
+        <view class="menu-avatar">
+          <image wx:if="{{item.imagePath}}" class="menu-avatar-img" src="{{item.imagePath}}" mode="aspectFill" />
+          <view wx:else class="menu-avatar-emoji">{{item.emoji || item.name}}</view>
+        </view>
+        <view class="menu-name">{{item.name}}</view>
+        <view wx:if="{{item.quantity > 1}}" class="menu-qty">x{{item.quantity}}</view>
+        <view class="menu-mark {{item.selected ? 'checked' : ''}}">{{item.selected ? '✓' : '+'}}</view>
+      </view>
+    </view>
+
+    <view class="bottom-space"></view>
+  </scroll-view>
+</view>
+
+<!-- 弹窗：补充识别提示 -->
+<view wx:if="{{hintDialog.visible}}" class="modal-mask" catchtouchmove="true">
+  <view class="modal-panel">
+    <view class="modal-title">确认照片里的食材</view>
+    <view class="modal-body">
+      <view class="modal-input-hint">可补充照片里的食材名，帮助匹配</view>
+      <input
+        class="modal-input"
+        value="{{hintDialog.value}}"
+        placeholder="例如：毛肚、肥牛、金针菇"
+        placeholder-class="input-placeholder"
+        bindinput="onHintInput"
+      />
+    </view>
+    <view class="modal-actions">
+      <view class="modal-btn cancel" bindtap="onHintCancel">取消</view>
+      <view class="modal-btn primary" bindtap="onHintConfirm">开始识别</view>
+    </view>
+  </view>
+</view>
+
+<!-- 弹窗：确认识别结果 -->
+<view wx:if="{{confirmDialog.visible}}" class="modal-mask" catchtouchmove="true">
+  <view class="modal-panel">
+    <view class="modal-title">确认识别结果</view>
+    <scroll-view scroll-y class="modal-body confirm-list">
+      <view wx:if="{{confirmDialog.items.length === 0}}" class="confirm-empty">
+        没有匹配到已收录食材，可以继续手动补录。
+      </view>
+      <view
+        wx:for="{{confirmDialog.items}}"
+        wx:key="id"
+        class="confirm-row"
+        bindtap="onConfirmToggle"
+        data-index="{{index}}"
+      >
+        <view class="confirm-check {{item.checked ? 'on' : ''}}">{{item.checked ? '✓' : ''}}</view>
+        <view class="confirm-info">
+          <view class="confirm-name">{{item.name}}</view>
+          <view class="confirm-sub">{{item.subtitle}}</view>
+        </view>
+      </view>
+    </scroll-view>
+    <view class="modal-actions">
+      <view class="modal-btn cancel" bindtap="onConfirmCancel">取消</view>
+      <view class="modal-btn primary" bindtap="onConfirmOk">加入已点</view>
+    </view>
+  </view>
+</view>
+
+<!-- 弹窗：自定义/补录食材 -->
+<view wx:if="{{customDialog.visible}}" class="modal-mask" catchtouchmove="true">
+  <view class="modal-panel">
+    <view class="modal-title">自定义食材</view>
+    <view class="modal-body">
+      <input
+        class="modal-input"
+        value="{{customDialog.name}}"
+        placeholder="食材名字，例如：鸭血"
+        placeholder-class="input-placeholder"
+        bindinput="onCustomNameInput"
+      />
+      <input
+        class="modal-input"
+        type="number"
+        value="{{customDialog.seconds}}"
+        placeholder="倒计时秒数，例如：90"
+        placeholder-class="input-placeholder"
+        bindinput="onCustomSecondsInput"
+      />
+    </view>
+    <view class="modal-actions">
+      <view class="modal-btn cancel" bindtap="onCustomCancel">跳过</view>
+      <view class="modal-btn primary" bindtap="onCustomSave">加入已点</view>
+    </view>
+  </view>
+</view>
+
+<!-- 弹窗：自定义食材管理 -->
+<view wx:if="{{managerDialog.visible}}" class="modal-mask" catchtouchmove="true">
+  <view class="modal-panel">
+    <view class="modal-title">自定义食材</view>
+    <scroll-view scroll-y class="modal-body confirm-list">
+      <view wx:if="{{managerDialog.items.length === 0}}" class="confirm-empty">还没有自定义食材。</view>
+      <view wx:for="{{managerDialog.items}}" wx:key="id" class="confirm-row">
+        <view class="confirm-info">
+          <view class="confirm-name">{{item.name}}</view>
+          <view class="confirm-sub">推荐 {{item.targetText}}</view>
+        </view>
+        <view class="manager-delete" bindtap="onManagerDelete" data-id="{{item.id}}">删除</view>
+      </view>
+    </scroll-view>
+    <view class="modal-actions">
+      <view class="modal-btn cancel" bindtap="onManagerClose">关闭</view>
+      <view class="modal-btn primary" bindtap="onManagerAdd">＋ 新增</view>
+    </view>
+  </view>
+</view>
