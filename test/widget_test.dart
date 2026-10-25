@@ -29,7 +29,8 @@ void main() {
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('脆爽毛肚').last);
-    await tester.pumpAndSettle();
+    // 倒计时启动后闪烁动画一直 repeat，pumpAndSettle 永远等不到结束，只推进有限帧
+    await tester.pump();
 
     expect(find.text('已选 1 道'), findsOneWidget);
     expect(find.text('15s'), findsWidgets);
